@@ -11,9 +11,17 @@ import UIKit
 class TodoListViewController: UITableViewController {
     
     var itemArray = ["Find Mike", "Buy Eggos", "Destroy Demogorgon"]
+    
+    //acces users default database
+    let defaults = UserDefaults.standard
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        //loading database from phone database
+        if let items = defaults.array(forKey: "TodoListArray") as? [String] {
+            itemArray = items
+        }
     }
     
     //needed functions for showing data in tableview
@@ -52,6 +60,9 @@ class TodoListViewController: UITableViewController {
         //add button clicked
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
             self.itemArray.append(newText.text!)
+            
+            //adds data to default database
+            self.defaults.set(self.itemArray, forKey: "TodoListArray");
             
             //reload list inside array
             self.tableView.reloadData()
