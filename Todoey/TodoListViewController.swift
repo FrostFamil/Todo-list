@@ -27,6 +27,20 @@ class TodoListViewController: UITableViewController {
         
         return cell;
     }
+    
+    //checks the row clicked by user
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        //adds and remove checkmark if certain row selected by user
+        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
+            tableView.cellForRow(at: indexPath)?.accessoryType = .none
+        }else{
+            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
+        }
+        
+        //deselect row after selecting it
+        tableView.deselectRow(at: indexPath, animated: true);
+    }
 
 
 }
