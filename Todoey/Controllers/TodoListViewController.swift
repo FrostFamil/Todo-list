@@ -10,7 +10,7 @@ import UIKit
 
 class TodoListViewController: UITableViewController {
     
-    var itemArray = ["Find Mike", "Buy Eggos", "Destroy Demogorgon"]
+    var itemArray = [Item]()
     
     //acces users default database
     let defaults = UserDefaults.standard
@@ -18,10 +18,14 @@ class TodoListViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let newItem = Item()
+        newItem.title = "Find Mike"
+        itemArray.append(newItem)
+        
         //loading database from phone database
-        if let items = defaults.array(forKey: "TodoListArray") as? [String] {
-            itemArray = items
-        }
+//        if let items = defaults.array(forKey: "TodoListArray") as? [String] {
+//            itemArray = items
+//        }
     }
     
     //needed functions for showing data in tableview
@@ -31,7 +35,17 @@ class TodoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
-        cell.textLabel?.text = itemArray[indexPath.row];
+        
+        let item = itemArray[indexPath.row]
+        cell.textLabel?.text = item.title;
+    
+        
+        //adds and remove checkmark if certain row selected by user
+        if item.done == true {
+            cell.accessoryType = .checkmark
+        }else {
+            cell.accessoryType = .none
+        }
         
         return cell;
     }
@@ -39,12 +53,10 @@ class TodoListViewController: UITableViewController {
     //checks the row clicked by user
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        //adds and remove checkmark if certain row selected by user
-        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
-            tableView.cellForRow(at: indexPath)?.accessoryType = .none
-        }else{
-            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
-        }
+        //changes the done property of cell
+        itemArray[indexPath.row].done = !itemArray[indexPath.row].done;
+
+        tableView.reloadData();
         
         //deselect row after selecting it
         tableView.deselectRow(at: indexPath, animated: true);
@@ -59,7 +71,10 @@ class TodoListViewController: UITableViewController {
         
         //add button clicked
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
-            self.itemArray.append(newText.text!)
+            
+            let newItem = Item()
+            newItem.title = newText.text!
+            self.itemArray.append(newItem)
             
             //adds data to default database
             self.defaults.set(self.itemArray, forKey: "TodoListArray");
