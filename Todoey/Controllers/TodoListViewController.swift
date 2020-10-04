@@ -22,16 +22,12 @@ class TodoListViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        
-        let newItem = Item()
-        newItem.title = "Find Mike"
-        itemArray.append(newItem)
         
         //loading database from phone database
 //        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
 //            itemArray = items
 //        }
+        loadItems()
     }
     
     //needed functions for showing data in tableview
@@ -108,7 +104,17 @@ class TodoListViewController: UITableViewController {
         //reload list inside array
         tableView.reloadData()
     }
-
+    
+    func loadItems() {
+        if let data = try? Data(contentsOf: dataFilePath!) {
+            let decoder = PropertyListDecoder()
+            do {
+                itemArray = try decoder.decode([Item].self, from: data)
+            }catch {
+                print(error)
+            }
+        }
+    }
 
 }
 
