@@ -30,7 +30,7 @@ class TodoListViewController: UITableViewController {
 //        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
 //            itemArray = items
 //        }
-        //loadItems()
+        loadItems()
     }
     
     //needed functions for showing data in tableview
@@ -115,7 +115,8 @@ class TodoListViewController: UITableViewController {
         tableView.reloadData()
     }
     
-//    func loadItems() {
+    func loadItems() {
+        //plist
 //        if let data = try? Data(contentsOf: dataFilePath!) {
 //            let decoder = PropertyListDecoder()
 //            do {
@@ -124,7 +125,15 @@ class TodoListViewController: UITableViewController {
 //                print(error)
 //            }
 //        }
-//    }
+        
+        //Core data
+        let request: NSFetchRequest<Item> = Item.fetchRequest()
+        do {
+            itemArray = try context.fetch(request)
+        }catch {
+            print("Error in fetching data")
+        }
+    }
 
 }
 
