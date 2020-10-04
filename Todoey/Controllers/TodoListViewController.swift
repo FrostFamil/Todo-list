@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 class TodoListViewController: UITableViewController {
     
@@ -16,6 +17,8 @@ class TodoListViewController: UITableViewController {
     let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
                                   .first?.appendingPathComponent("Items.plist")
     
+    // core data
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     //acces users default database
     //let defaults = UserDefaults.standard
@@ -27,7 +30,7 @@ class TodoListViewController: UITableViewController {
 //        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
 //            itemArray = items
 //        }
-        loadItems()
+        //loadItems()
     }
     
     //needed functions for showing data in tableview
@@ -70,8 +73,14 @@ class TodoListViewController: UITableViewController {
         //add button clicked
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
             
-            let newItem = Item()
+            //plist version
+            //let newItem = ItemOld()
+            
+            //core data version
+            let newItem = Item(context: self.context)
+            
             newItem.title = newText.text!
+            newItem.done = false
             self.itemArray.append(newItem)
             
             //adds data to default database
@@ -93,10 +102,11 @@ class TodoListViewController: UITableViewController {
     }
     
     func saveItems() {
-        let encoder = PropertyListEncoder()
+        //let encoder = PropertyListEncoder()
         do {
-            let data = try encoder.encode(itemArray)
-            try data.write(to: dataFilePath!)
+            //let data = try encoder.encode(itemArray)
+            //try data.write(to: dataFilePath!)
+            try context.save()
         }catch {
             print("Error encoding item array")
         }
@@ -105,16 +115,16 @@ class TodoListViewController: UITableViewController {
         tableView.reloadData()
     }
     
-    func loadItems() {
-        if let data = try? Data(contentsOf: dataFilePath!) {
-            let decoder = PropertyListDecoder()
-            do {
-                itemArray = try decoder.decode([Item].self, from: data)
-            }catch {
-                print(error)
-            }
-        }
-    }
+//    func loadItems() {
+//        if let data = try? Data(contentsOf: dataFilePath!) {
+//            let decoder = PropertyListDecoder()
+//            do {
+//                itemArray = try decoder.decode([Item].self, from: data)
+//            }catch {
+//                print(error)
+//            }
+//        }
+//    }
 
 }
 
