@@ -54,6 +54,13 @@ class TodoListViewController: UITableViewController {
     //checks the row clicked by user
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
+        //update the property in db
+        //itemArray[indexPath.row].setValue("Completed", forKey: "title")
+        
+        //remove the property in db
+        //context.delete(itemArray[indexPath.row])
+        //itemArray.remove(at: indexPath.row)
+        
         //changes the done property of cell
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done;
 
@@ -115,7 +122,7 @@ class TodoListViewController: UITableViewController {
         tableView.reloadData()
     }
     
-    func loadItems() {
+    func loadItems(request: NSFetchRequest<Item> = Item.fetchRequest()) {
         //plist
 //        if let data = try? Data(contentsOf: dataFilePath!) {
 //            let decoder = PropertyListDecoder()
@@ -127,7 +134,7 @@ class TodoListViewController: UITableViewController {
 //        }
         
         //Core data
-        let request: NSFetchRequest<Item> = Item.fetchRequest()
+        //let request: NSFetchRequest<Item> = Item.fetchRequest()
         do {
             itemArray = try context.fetch(request)
         }catch {
@@ -135,5 +142,20 @@ class TodoListViewController: UITableViewController {
         }
     }
 
+}
+
+//MARK: - Search bar methods
+extension TodoListViewController: UISearchBarDelegate {
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let request: NSFetchRequest<Item> = Item.fetchRequest()
+        
+        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+        
+        //sort getting data
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        
+        loadItems(request: request)
+    }
 }
 
