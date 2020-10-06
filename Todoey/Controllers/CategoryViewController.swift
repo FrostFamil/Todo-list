@@ -8,13 +8,21 @@
 
 import UIKit
 import CoreData
+import RealmSwift
 
 class CategoryViewController: UITableViewController {
     
-    var categoryArray = [Category]()
+    //initialize Realm
+    let realm = try! Realm()
+    
+    //core data version
+    //var categoryArray = [Category]()
+    
+    //realm version
+    var categoryArray: Results<Category>?
     
     // core data
-    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    //let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,12 +42,15 @@ class CategoryViewController: UITableViewController {
             //let newItem = ItemOld()
             
             //core data version
-            let newCategory = Category(context: self.context)
+            //let newCategory = Category(context: self.context)
+            
+            //realm version
+            let newCategory = Category()
             
             newCategory.name = newText.text!
-            self.categoryArray.append(newCategory)
+            //self.categoryArray.append(newCategory)
             
-            self.saveCategories()
+            self.saveCategories(category: newCategory)
         }
         
         //adds text field to alert
@@ -55,33 +66,48 @@ class CategoryViewController: UITableViewController {
     
     //needed functions for showing data in tableview
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return categoryArray.count;
+        return categoryArray?.count ?? 1;
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
         
-        let category = categoryArray[indexPath.row]
-        cell.textLabel?.text = category.name;
+        let category = categoryArray?[indexPath.row]
+        cell.textLabel?.text = category?.name ?? "No Categories Added Yet";
         
         return cell;
     }
     
-    func saveCategories() {
+    func saveCategories(category: Category) {
         do {
-            try context.save()
+            //coredata version
+            //try context.save()
+            
+            //realm version
+            try realm.write {
+                realm.add(category)
+            }
         }catch {
             print("Error encoding item array")
         }
         tableView.reloadData()
     }
     
-    func loadCategories(request: NSFetchRequest<Category> = Category.fetchRequest()) {
-        do {
-            categoryArray = try context.fetch(request)
-        }catch {
-            print("Error in fetching data")
-        }
+    //core data version
+//    func loadCategories(request: NSFetchRequest<Category> = Category.fetchRequest()) {
+//        do {
+//            categoryArray = try context.fetch(request)
+//        }catch {
+//            print("Error in fetching data")
+//        }
+//        tableView.reloadData()
+//    }
+    
+    //realm version
+    func loadCategories() {
+        
+        categoryArray = realm.objects(Category.self)
+        
         tableView.reloadData()
     }
     
@@ -94,7 +120,7 @@ class CategoryViewController: UITableViewController {
         let destinationVC = segue.destination as! TodoListViewController
         
         if let indexPath = tableView.indexPathForSelectedRow {
-            destinationVC.selectedCategory = categoryArray[indexPath.row]
+            destinationVC.selectedCategory = categoryArray?[indexPath.row]
         }
     }
 
