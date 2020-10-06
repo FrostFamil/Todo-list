@@ -125,6 +125,7 @@ class TodoListViewController: UITableViewController {
                     try self.realm.write {
                         let newItem = Item()
                         newItem.title = newText.text!
+                        newItem.dateCreated = Date()
                         //newItem.done = false
                         currentCategory.items.append(newItem)
                     }
@@ -208,9 +209,10 @@ class TodoListViewController: UITableViewController {
     
 
 //MARK: - Search bar methods
-//extension TodoListViewController: UISearchBarDelegate {
-//
-//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+extension TodoListViewController: UISearchBarDelegate {
+
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        //core data
 //        let newRequest: NSFetchRequest<Item> = Item.fetchRequest()
 //
 //        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
@@ -219,18 +221,23 @@ class TodoListViewController: UITableViewController {
 //        newRequest.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
 //
 //        loadItems(request: newRequest, predicate: predicate)
-//    }
-//
-//    //when search bar is empty
-//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-//        if searchBar.text?.count == 0 {
-//            loadItems()
-//
-//            //makes search goes back when keyboard dissmissed
-//            DispatchQueue.main.async {
-//                searchBar.resignFirstResponder()
-//            }
-//        }
-//    }
-//}
+        
+        //realm version
+        itemArray = itemArray?.filter("title CONTAINS[cd] %@", searchBar.text).sorted(byKeyPath: "dateCreated", ascending: true)
+        
+        tableView.reloadData()
+    }
+
+    //when search bar is empty
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchBar.text?.count == 0 {
+            loadItems()
+
+            //makes search goes back when keyboard dissmissed
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+        }
+    }
+}
 
