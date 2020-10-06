@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreData
+import RealmSwift
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -19,7 +20,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         
         //Print out folder where our persistent data stored
-        print(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last! as String)
+        //print(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last! as String)
+        
+        //get location of file Realm
+        print(Realm.Configuration.defaultConfiguration.fileURL)
+        
+        //initialising Realm
+        let data = Data()
+        data.name = "Famil"
+        data.age = 22
+        
+        do{
+            let realm = try Realm()
+            //commit
+            try realm.write {
+                realm.add(data)
+            }
+        }catch {
+            print("Error initialising Realms")
+        }
+        
         
         return true
     }
