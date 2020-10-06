@@ -75,11 +75,16 @@ class TodoListViewController: UITableViewController {
             do{
                 try realm.write {
                     item.done = !item.done
+                    
+                    //delete clicked item
+                    //realm.delete(item)
                 }
             }catch{
                 print(error)
             }
         }
+        
+        
         
         tableView.reloadData()
         
