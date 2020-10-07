@@ -9,6 +9,7 @@
 import UIKit
 import CoreData
 import RealmSwift
+import ChameleonFramework
 
 class CategoryViewController: SwipeTableViewController {
     
@@ -29,6 +30,11 @@ class CategoryViewController: SwipeTableViewController {
         
         loadCategories()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        guard let navBar = navigationController?.navigationBar else {fatalError("Navigation error")}
+        navBar.backgroundColor = UIColor(hexString: "1D9BF6")
+    }
 
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
         var newText = UITextField()
@@ -48,6 +54,7 @@ class CategoryViewController: SwipeTableViewController {
             let newCategory = Category()
             
             newCategory.name = newText.text!
+            newCategory.cellColor = UIColor.randomFlat().hexValue()
             //self.categoryArray.append(newCategory)
             
             self.saveCategories(category: newCategory)
@@ -73,8 +80,12 @@ class CategoryViewController: SwipeTableViewController {
         
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
-        let category = categoryArray?[indexPath.row]
-        cell.textLabel?.text = category?.name ?? "No Categories Added Yet";
+        if let category = categoryArray?[indexPath.row] {
+            cell.textLabel?.text = category.name ?? "No Categories Added Yet";
+            
+            cell.backgroundColor = UIColor(hexString: category.cellColor ?? "#1D9BF6")
+            cell.textLabel?.textColor = ContrastColorOf(UIColor(hexString: category.cellColor)!, returnFlat: true)
+        }
         
         return cell;
     }
@@ -128,6 +139,8 @@ class CategoryViewController: SwipeTableViewController {
     //cell clicked
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: "goToItems", sender: self);
+        //deselect row after selecting it
+        tableView.deselectRow(at: indexPath, animated: true);
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

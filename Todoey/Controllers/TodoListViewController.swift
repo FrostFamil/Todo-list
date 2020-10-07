@@ -9,6 +9,7 @@
 import UIKit
 import CoreData
 import RealmSwift
+import ChameleonFramework
 
 class TodoListViewController: SwipeTableViewController {
     
@@ -18,6 +19,8 @@ class TodoListViewController: SwipeTableViewController {
     //realm version
     var itemArray: Results<Item>?
     let realm = try! Realm()
+    
+    @IBOutlet weak var searchBar: UISearchBar!
     
     var selectedCategory: Category? {
         didSet{
@@ -38,12 +41,26 @@ class TodoListViewController: SwipeTableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.navigationController?.navigationBar.tintColor = UIColor.white
-        
         //loading database from phone database
 //        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
 //            itemArray = items
 //        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        if let colorHex = selectedCategory?.cellColor {
+            
+            title = selectedCategory!.name
+            
+            guard let navBar = navigationController?.navigationBar else {fatalError("Navigation error")}
+            navBar.backgroundColor = UIColor(hexString: colorHex)
+            
+            navBar.tintColor = ContrastColorOf(UIColor(hexString: colorHex)!, returnFlat: true)
+            
+            navBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor: ContrastColorOf(UIColor(hexString: colorHex)!, returnFlat: true)]
+            
+            //searchBar.barTintColor = UIColor(hexString: colorHex)
+        }
     }
     
     //needed functions for showing data in tableview
@@ -56,7 +73,12 @@ class TodoListViewController: SwipeTableViewController {
         
         if let item = itemArray?[indexPath.row] {
             cell.textLabel?.text = item.title;
-        
+            
+            if let color = UIColor(hexString: selectedCategory!.cellColor)?.darken(byPercentage: (CGFloat(indexPath.row) / CGFloat(itemArray!.count))) {
+                cell.backgroundColor = color
+                cell.textLabel?.textColor = ContrastColorOf(color, returnFlat: true)
+            }
+                
             //adds and remove checkmark if certain row selected by user
             cell.accessoryType = item.done ? .checkmark : .none
         }else {
