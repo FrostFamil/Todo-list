@@ -10,7 +10,7 @@ import UIKit
 import CoreData
 import RealmSwift
 
-class TodoListViewController: UITableViewController {
+class TodoListViewController: SwipeTableViewController {
     
     //core data version
     //var itemArray = [Item]()
@@ -38,6 +38,8 @@ class TodoListViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        self.navigationController?.navigationBar.tintColor = UIColor.white
+        
         //loading database from phone database
 //        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
 //            itemArray = items
@@ -50,7 +52,7 @@ class TodoListViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
         if let item = itemArray?[indexPath.row] {
             cell.textLabel?.text = item.title;
@@ -203,6 +205,18 @@ class TodoListViewController: UITableViewController {
     //realm version
     func loadItems() {
         itemArray = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
+    }
+    
+    override func updateModel(indexPath: IndexPath) {
+        if let item = itemArray?[indexPath.row] {
+            do{
+                try self.realm.write {
+                    self.realm.delete(item)
+                }
+            }catch{
+                print(error)
+            }
+        }
     }
 }
     
